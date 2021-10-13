@@ -5,6 +5,7 @@ void test();
 int main()
 {
     test();
+    TicTacToe t;
 
     getchar();
     return 0;

@@ -4,14 +4,17 @@ using std::cout, std::cin, std::endl, std::string, std::stringstream;
 
 //@enum the symbol for players
 
-TicTacToe::TicTacToe(const short size, const short num_of_player)
-    : TicTacToe(size, num_of_player, 0, "")
+TicTacToe::TicTacToe()  : TicTacToe(0,"")
 {
-
 }
 
-TicTacToe::TicTacToe(const short size, const short num_of_player,
-                     bool isDebug, string s)
+TicTacToe::TicTacToe(const short size, const short num_of_player)
+    : TicTacToe(0, "", size, num_of_player)
+{ 
+}
+
+TicTacToe::TicTacToe(bool isDebug, string s, const short size, 
+                    const short num_of_player)
     : BOARD_SIZE(size), NUM_OF_PLAYER(num_of_player), debug_mode(isDebug), s(s)
 {
     mainboard.reserve(BOARD_SIZE);
@@ -42,7 +45,7 @@ TicTacToe::TicTacToe(const short size, const short num_of_player,
     if (debug_mode)
         debugScreen();
     else
-    mainEvent();
+        mainMenu();
 }
 
 void TicTacToe::drawMainBoard() {
@@ -71,16 +74,29 @@ void TicTacToe::drawMainBoard() {
     }
 }
 
+void TicTacToe::mainMenu() {
+    cout << "Press Enter to begin!" << endl
+         << "Player one goes first." << endl;
+    getchar();
+    mainEvent();
+}
+
 void TicTacToe::mainEvent() {
-    while(!winner && !isWin()) {
+    while(!winner && winner!=STATE::QUIT && !isWin()) {
         drawMainBoard();
         for (int i = 0; i < NUM_OF_PLAYER; ++i) {
             short a, b;
-            cout << "Player " << i + 1 << ", please enter x,y (q for quit): ";
+            cout << "Player " << i + 1 << ", please enter x,y (-1 -1 for quit): ";
             cin >> a >> b;
-            makeAMove(i, a, b);
+            try {
+                makeAMove(i, a, b);
+            }
+            catch (std::invalid_argument &e) {
+                std::cerr << e.what() << endl;
+                i--;
+            }
             if(!isActive[i]) {
-                winner = 0;
+                winner = STATE::QUIT;
                 break;
             }
         }
@@ -89,8 +105,11 @@ void TicTacToe::mainEvent() {
 }
 
 void TicTacToe::makeAMove(short player, short x, short y) {
-    if(tolower(x) == 'q' || tolower(y)=='q')
+    if(x==STATE::QUIT || y==STATE::QUIT)
+    {
         isActive[player] = 0;
+        std::cin.ignore();
+    }
     else if (!mainboard[x][y])
     {
         mainboard[x][y] = player+1;
@@ -101,31 +120,22 @@ void TicTacToe::makeAMove(short player, short x, short y) {
         if(x+y+1 == BOARD_SIZE)
             op_diag[player][x]++;
     }
-    // for (short i : row[player])
-    //     cout << i << " ";
-    // cout << endl;
-    // for (short i : col[player])
-    //     cout << i << " ";
-    // cout << endl;
-    // for (short i : diag[player])
-    //     cout << i << " ";
-    // cout << endl;
-    // for (short i : op_diag[player])
-    //     cout << i << " ";
-    // cout << endl
-    //      << endl;
-    //@else: throw invalid_move
+    else
+        throw std::invalid_argument("Invalid move!");
 }
 
 void TicTacToe::endScreen() {
     drawMainBoard();
-    if(winner) {
+    if(winner == STATE::QUIT) {
+        cout << "Player quitted" << endl;
+    }
+    else if(winner!=STATE::DRAW) {
         cout << "Winner is player " << winner << endl;
     }
     else {
-        cout << "No winner" << endl;
+        cout << "Draw/No winner" << endl;
     }
-    cout << endl;
+    cout << "Game ended" << endl << endl;
 }
 
 bool TicTacToe::isWin() {
@@ -174,7 +184,13 @@ void TicTacToe::debugScreen() {
 
         while (!isWin() && !winner && i < N-2 ) {
             short x =s[i] - NUM_BASE, y = s[i+1] - NUM_BASE;
-            makeAMove(j, x, y);
+            try{
+                makeAMove(j, x, y);
+            }
+            catch (std::invalid_argument &e) {
+                std::cerr << e.what() << endl;
+                break;
+            }
             if (!isActive[j])
             {
                 winner = 0;
@@ -193,19 +209,6 @@ void TicTacToe::debugScreen() {
         else {
             cout << "Test succesfully!" << endl;
         }
-        // cout << endl;
-        // for (short i : row[s[N - 1] - NUM_BASE - 1])
-        //     cout << i << " ";
-        // cout << endl;
-        // for (short i : col[s[N - 1] - NUM_BASE - 1])
-        //     cout << i << " ";
-        // cout << endl;
-        // for (short i : diag[s[N - 1] - NUM_BASE - 1])
-        //     cout << i << " ";
-        // cout << endl;
-        // for (short i : op_diag[s[N - 1] - NUM_BASE - 1])
-        //     cout << i << " ";
-        // cout << endl;
         endScreen();
     }
 }

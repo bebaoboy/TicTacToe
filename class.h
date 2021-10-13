@@ -3,16 +3,19 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <stdexcept>
 
 using std::vector;
 class TicTacToe
 {
 public:
-    TicTacToe(const short = 3, const short = 2);
+    TicTacToe();
+    TicTacToe(const short, const short);
     ~TicTacToe();
 
 private:
     void drawMainBoard();
+    void mainMenu();
     bool isWin();
     void mainEvent();
     void makeAMove(short, short, short);
@@ -26,21 +29,23 @@ private:
 
     short winner = 0;
 
-    const short BOARD_SIZE;
-    const short NUM_OF_PLAYER;
+    const short BOARD_SIZE = 3;
+    const short NUM_OF_PLAYER = 2;
+
+    enum STATE{QUIT = -1, DRAW};
 
     //debug
-    bool debug_mode = 0;
-    std::string s = "";
+    bool debug_mode;
+    std::string s;
 
 protected:
-    TicTacToe(const short = 3, const short = 2, bool = 0, std::string = "");
+    TicTacToe(bool, std::string, const short=3, const short=2);
 };
 
 class Test : public TicTacToe
 {
 public:
-    Test(const short = 3, const short = 2, bool = 0, std::string = "");
+    Test(const short, const short, bool, std::string);
 
 private:
 };
