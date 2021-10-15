@@ -3,7 +3,7 @@
 using std::string;
 
 Test::Test(const short size, const short num_of_player,
-           bool isDebug, string s) : TicTacToe(isDebug, s, size, num_of_player)
+           bool isDebug, string s, const short to_win) : TicTacToe(isDebug, s, size, num_of_player, to_win)
 {
 }
 

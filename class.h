@@ -10,7 +10,7 @@ class TicTacToe
 {
 public:
     TicTacToe();
-    TicTacToe(const short, const short);
+    TicTacToe(const short, const short, const short);
     ~TicTacToe();
 
 private:
@@ -31,6 +31,7 @@ private:
 
     const short BOARD_SIZE = 3;
     const short NUM_OF_PLAYER = 2;
+    const short NUM_TO_WIN;
 
     enum STATE{QUIT = -1, DRAW};
 
@@ -39,13 +40,13 @@ private:
     std::string s;
 
 protected:
-    TicTacToe(bool, std::string, const short=3, const short=2);
+    TicTacToe(bool, std::string, const short=3, const short=2, const short=3);
 };
 
 class Test : public TicTacToe
 {
 public:
-    Test(const short, const short, bool, std::string);
+    Test(const short, const short, bool, std::string, const short = 3);
 
 private:
 };

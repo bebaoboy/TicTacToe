@@ -4,7 +4,7 @@ void test();
 
 int main()
 {
-    //test();
+    test();
     TicTacToe t;
 
     getchar();

@@ -8,14 +8,14 @@ TicTacToe::TicTacToe()  : TicTacToe(0,"")
 {
 }
 
-TicTacToe::TicTacToe(const short size, const short num_of_player)
-    : TicTacToe(0, "", size, num_of_player)
+TicTacToe::TicTacToe(const short size, const short num_of_player, const short to_win=3)
+    : TicTacToe(0, "", size, num_of_player, to_win)
 { 
 }
 
 TicTacToe::TicTacToe(bool isDebug, string s, const short size, 
-                    const short num_of_player)
-    : BOARD_SIZE(size), NUM_OF_PLAYER(num_of_player), debug_mode(isDebug), s(s)
+                    const short num_of_player, const short to_win)
+    : BOARD_SIZE(size), NUM_OF_PLAYER(num_of_player), debug_mode(isDebug), s(s), NUM_TO_WIN(to_win)
 {
     mainboard.reserve(BOARD_SIZE);
 
@@ -98,8 +98,7 @@ void TicTacToe::mainEvent() {
             }
             catch (std::invalid_argument &e) {
                 std::cerr << e.what() << endl;
-                i--;
-                
+                i--;  
             }
         }
     }
@@ -141,6 +140,7 @@ void TicTacToe::endScreen() {
         cout << "Draw/No winner" << endl;
     }
     cout << "Game ended" << endl << endl;
+    cin.ignore();
 }
 
 bool TicTacToe::isWin() {
@@ -148,7 +148,7 @@ bool TicTacToe::isWin() {
         short sum_diag = 0, sum_op_diag = 0;
 
         for (int j = 0; j < BOARD_SIZE; ++j) {
-            if(row[i][j] == BOARD_SIZE || col[i][j] == BOARD_SIZE)
+            if(row[i][j] == NUM_TO_WIN || col[i][j] == NUM_TO_WIN)
             {
                 winner = i+1;
                 return true;
@@ -156,7 +156,7 @@ bool TicTacToe::isWin() {
             sum_diag += diag[i][j];
             sum_op_diag += op_diag[i][j];
         }
-        if (sum_diag == BOARD_SIZE || sum_op_diag == BOARD_SIZE)
+        if (sum_diag == NUM_TO_WIN || sum_op_diag == NUM_TO_WIN)
         {
             winner = i+1;
             return true;
