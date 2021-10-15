@@ -85,19 +85,21 @@ void TicTacToe::mainEvent() {
     while(!winner && winner!=STATE::QUIT && !isWin()) {
         drawMainBoard();
         for (int i = 0; i < NUM_OF_PLAYER; ++i) {
-            short a, b;
+            short a=0, b=0;
             cout << "Player " << i + 1 << ", please enter x,y (-1 -1 for quit): ";
             cin >> a >> b;
+
             try {
                 makeAMove(i, a, b);
+                if(!isActive[i]) {
+                    winner = STATE::QUIT;
+                    break;
+                } 
             }
             catch (std::invalid_argument &e) {
                 std::cerr << e.what() << endl;
                 i--;
-            }
-            if(!isActive[i]) {
-                winner = STATE::QUIT;
-                break;
+                
             }
         }
     }
@@ -108,9 +110,10 @@ void TicTacToe::makeAMove(short player, short x, short y) {
     if(x==STATE::QUIT || y==STATE::QUIT)
     {
         isActive[player] = 0;
-        std::cin.ignore();
+        //std::cin.ignore();
     }
-    else if (!mainboard[x][y])
+    else if (x < BOARD_SIZE && y < BOARD_SIZE 
+            && x>= 0 && y >= 0 && !mainboard[x][y])
     {
         mainboard[x][y] = player+1;
         row[player][x]++;
@@ -121,10 +124,12 @@ void TicTacToe::makeAMove(short player, short x, short y) {
             op_diag[player][x]++;
     }
     else
-        throw std::invalid_argument("Invalid move!");
+        throw std::invalid_argument("Invalid move!\n");
 }
 
 void TicTacToe::endScreen() {
+    cout << endl
+         << endl;
     drawMainBoard();
     if(winner == STATE::QUIT) {
         cout << "Player quitted" << endl;
