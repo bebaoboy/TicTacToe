@@ -1,27 +1,26 @@
-#ifndef _HEADER_
-#define _HEADER_
+#ifndef _CLASS_H_
+#define _CLASS_H_
 #include <vector>
 #include <string>
 #include <iostream>
 #include <stdexcept>
 
-using std::vector;
+using std::vector, std::string;
 class TicTacToe
 {
 public:
     TicTacToe();
-    TicTacToe(const short, const short, const short);
-    ~TicTacToe();
+    TicTacToe(short size, short num_of_player, short to_win);
+    void start();
 
 private:
+    void init(short, short, short);
     void drawMainBoard();
-    void mainMenu();
     bool isWin();
     void mainEvent();
     void makeAMove(short, short, short);
     void endScreen();
     void reset();
-    void debugScreen();
 
     vector<vector<short>> mainboard;
     vector<vector<short>> row, col, diag, op_diag;
@@ -29,26 +28,16 @@ private:
 
     short winner = 0;
 
-    const short BOARD_SIZE = 3;
-    const short NUM_OF_PLAYER = 2;
-    const short NUM_TO_WIN;
+    short BOARD_SIZE = 3;
+    short NUM_OF_PLAYER = 2;
+    short NUM_TO_WIN = 3;
 
     enum STATE{QUIT = -1, DRAW};
 
-    //debug
-    bool debug_mode;
-    std::string s;
-
 protected:
-    TicTacToe(bool, std::string, const short=3, const short=2, const short=3);
+    void debugScreen(short size, short num_of_player,
+                     string s, short to_win);
 };
 
-class Test : public TicTacToe
-{
-public:
-    Test(const short, const short, bool, std::string, const short = 3);
-
-private:
-};
 
 #endif

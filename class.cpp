@@ -1,22 +1,20 @@
 #include "class.h"
-#include <sstream>
-using std::cout, std::cin, std::endl, std::string, std::stringstream;
-
+#include<sstream>
+#include<iostream>
 //@enum the symbol for players
+using std::cout, std::cin, std::endl, std::stringstream;
 
-TicTacToe::TicTacToe()  : TicTacToe(0,"")
+TicTacToe::TicTacToe()
 {
 }
 
-TicTacToe::TicTacToe(const short size, const short num_of_player, const short to_win=3)
-    : TicTacToe(0, "", size, num_of_player, to_win)
-{ 
+TicTacToe::TicTacToe(short size, 
+                    short num_of_player, short to_win)
+    : BOARD_SIZE(size), NUM_OF_PLAYER(num_of_player), NUM_TO_WIN(to_win)
+{
 }
 
-TicTacToe::TicTacToe(bool isDebug, string s, const short size, 
-                    const short num_of_player, const short to_win)
-    : BOARD_SIZE(size), NUM_OF_PLAYER(num_of_player), debug_mode(isDebug), s(s), NUM_TO_WIN(to_win)
-{
+void TicTacToe::init(short size, short num_of_player, short to_win) {
     mainboard.reserve(BOARD_SIZE);
 
     for (int i = 0; i < NUM_OF_PLAYER; ++i)
@@ -42,13 +40,37 @@ TicTacToe::TicTacToe(bool isDebug, string s, const short size,
         }
         mainboard.push_back(temp);
     }
-    if (debug_mode)
-        debugScreen();
-    else
-        mainMenu();
 }
 
-void TicTacToe::drawMainBoard() {
+void TicTacToe::start()
+{
+    cout << "Press Enter to begin!" << endl
+         << "Player one goes first." << endl;
+    getchar();
+    cout << "Use default configuration? (3x3 - 2 player) (y/n): ";
+    if (tolower(getchar()) == 'n')
+    {
+        cout << "Board size: ";
+        cin >> BOARD_SIZE;
+        cout << "Num of player (must be < " << BOARD_SIZE << "): ";
+        cin >> NUM_OF_PLAYER;
+        while (NUM_OF_PLAYER >= BOARD_SIZE)
+        {
+            cout << "Num of player (must be < " << BOARD_SIZE << "): ";
+            cin >> NUM_OF_PLAYER;
+        }
+        cout << "Number to win: ";
+        cin >> NUM_TO_WIN;
+    }
+    cout << "All set. Enjoy the game!" << endl
+         << endl;
+    init(BOARD_SIZE, NUM_OF_PLAYER, NUM_TO_WIN);
+    getchar();
+    mainEvent();
+}
+
+void TicTacToe::drawMainBoard()
+{
     //7 per block
     // cout << ":::::::::::::::::::::::::" << endl
     //      << ":       :       :       :" << endl
@@ -72,13 +94,6 @@ void TicTacToe::drawMainBoard() {
         }
         cout << endl;
     }
-}
-
-void TicTacToe::mainMenu() {
-    cout << "Press Enter to begin!" << endl
-         << "Player one goes first." << endl;
-    getchar();
-    mainEvent();
 }
 
 void TicTacToe::mainEvent() {
@@ -109,7 +124,6 @@ void TicTacToe::makeAMove(short player, short x, short y) {
     if(x==STATE::QUIT || y==STATE::QUIT)
     {
         isActive[player] = 0;
-        //std::cin.ignore();
     }
     else if (x < BOARD_SIZE && y < BOARD_SIZE 
             && x>= 0 && y >= 0 && !mainboard[x][y])
@@ -139,8 +153,18 @@ void TicTacToe::endScreen() {
     else {
         cout << "Draw/No winner" << endl;
     }
-    cout << "Game ended" << endl << endl;
-    cin.ignore();
+    cout << endl << endl;
+    cout << "Press R to restart the game!";
+    if (tolower(getchar() == 'r'))
+    {
+        reset();
+        getchar();
+        start();
+    }
+    else cout << "Game ended" << endl
+                << endl;
+    
+    getchar();
 }
 
 bool TicTacToe::isWin() {
@@ -165,60 +189,7 @@ bool TicTacToe::isWin() {
     return false;
 }
 
-void TicTacToe::reset() {}
-
-void TicTacToe::debugScreen() {
-
-    // @will use exception later
-    // @to do: invalid_move
-
-    const int N = s.length();
-    const int NUM_BASE = 48;
-
-    cout << "Debug mode is on!" << endl;
-
-    if( N%2!=0 || N > BOARD_SIZE*BOARD_SIZE*2 + 2) {
-        cout << "Invalid test string!" << endl;
-    }
-    else {
-        stringstream stream (s);
-        string temp = "";
-        std::getline(stream, temp, '-');
-        cout << temp << endl;
-        int i = 0, j = 0;
-
-        while (!isWin() && !winner && i < N-2 ) {
-            short x =s[i] - NUM_BASE, y = s[i+1] - NUM_BASE;
-            try{
-                makeAMove(j, x, y);
-            }
-            catch (std::invalid_argument &e) {
-                std::cerr << e.what() << endl;
-                break;
-            }
-            if (!isActive[j])
-            {
-                winner = 0;
-                break;
-            }
-            i+=2;
-            j++;
-            if (j == NUM_OF_PLAYER)
-                j = 0;
-        }
-        if(winner != s[N-1]-NUM_BASE) {
-            cout << "Wrong winner!\nWinner in game is " << winner 
-                << " while test winner is " << s[N-1] << endl;
-            
-        }
-        else {
-            cout << "Test succesfully!" << endl;
-        }
-        endScreen();
-    }
-}
-
-TicTacToe::~TicTacToe()
+void TicTacToe::reset()
 {
     isActive.clear();
     row.clear();
@@ -228,5 +199,67 @@ TicTacToe::~TicTacToe()
     for (int k = 0; k < BOARD_SIZE; ++k)
     {
         mainboard[k].clear();
+    }
+    mainboard.clear();
+    winner = 0;
+}
+
+void TicTacToe::debugScreen(const short size, const short num_of_player,
+                            string s, const short to_win)
+{
+
+    init(size, num_of_player, to_win);
+    const int N = s.length();
+    const int NUM_BASE = 48;
+
+    cout << "Debug mode is on!" << endl;
+
+    if (N % 2 != 0 || N > BOARD_SIZE * BOARD_SIZE * 2 + 2)
+    {
+        cout << "Invalid test string!" << endl;
+    }
+    else
+    {
+        stringstream stream(s);
+        string temp = "";
+        std::getline(stream, temp, '-');
+        cout << temp << endl;
+        int i = 0, j = 0;
+
+        while (!isWin() && !winner && i < N - 2)
+        {
+            short x = s[i] - NUM_BASE, y = s[i + 1] - NUM_BASE;
+            try
+            {
+                makeAMove(j, x, y);
+            }
+            catch (std::invalid_argument &e)
+            {
+                std::cerr << e.what() << endl;
+                break;
+            }
+            if (!isActive[j])
+            {
+                winner = 0;
+                break;
+            }
+            i += 2;
+            j++;
+            if (j == NUM_OF_PLAYER)
+                j = 0;
+        }
+        drawMainBoard();
+
+        if (winner != s[N - 1] - NUM_BASE)
+        {
+            cout << "Wrong winner!\nWinner in game is " << winner
+                 << " while test winner is " << s[N - 1] << endl << endl;
+        }
+        else
+        {
+            cout << "Test succesfully!" << endl;
+            cout << "Winner is " << s[N - 1] << endl
+                 << endl;
+        }
     }
 }

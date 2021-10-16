@@ -6,7 +6,8 @@ int main()
 {
     test();
     TicTacToe t;
+    t.mainMenu();
 
-    getchar();
+    char temp = getchar();
     return 0;
 }
